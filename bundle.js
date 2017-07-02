@@ -76,7 +76,9 @@ const Util = {
 
   // assume radius ~ mass for vel change equation. Densities not implemented.
 
-  newVel (mass1, mass2, vel1, vel2) {
+  newVel (radius1, radius2, vel1, vel2) {
+    let mass1 = radius1 * radius1 * Math.PI;
+    let mass2 = radius2 * radius2 * Math.PI;
     return (vel1 * (mass1 - mass2) + (2 * mass2 * vel2)) / (mass1 + mass2);
   },
 
@@ -138,7 +140,7 @@ module.exports = GameView;
 let Asteroid = __webpack_require__(4);
 let Util = __webpack_require__(0);
 
-function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 30)  {
+function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 50)  {
   this.DIM_X = DIM_X;
   this.DIM_Y = DIM_Y;
   this.asteroids = [];
@@ -173,9 +175,8 @@ Game.prototype.checkCollisions = function() {
       let ast1 = this.asteroids[i];
       let ast2 = this.asteroids[j];
       if (ast1.isCollidedWith(ast2)) {
-        ast1.newVel(ast2);
-        ast2.newVel(ast1);
         ast1.separateObjects(ast2);
+        ast1.newVel(ast2);
       }
     }
   }
@@ -206,7 +207,7 @@ function COLORS() {return '#'+Math.floor(Math.random()*16777215).toString(16);
 
 function RADIUS() {return 15 + (Math.random() * 100) % 25;}
 
-const VELOCITY = 2;
+const VELOCITY = 1;
 
 function Asteroid(options = {}) {
   options.color = COLORS();
@@ -287,10 +288,14 @@ function MovingObject(options) {
   // Vector physics causes balls to get stuck together. separate balls.
 
   MovingObject.prototype.newVel = function(otherAsteroid) {
-    this.vel[0] = Util.newVel(this.radius, otherAsteroid.radius, this.vel[0], otherAsteroid.vel[0]);
-    // this.pos[0] += this.vel[0];
-    this.vel[1] = Util.newVel(this.radius, otherAsteroid.radius, this.vel[1], otherAsteroid.vel[1]);
-    // this.pos[1] += this.vel[1];
+    let originalThisVelX = this.vel[0];
+    let originalThisVelY = this.vel[1];
+    let originalOtherVelX = otherAsteroid.vel[0];
+    let originalOtherVelY = otherAsteroid.vel[1];
+    this.vel[0] = Util.newVel(this.radius, otherAsteroid.radius, originalThisVelX, originalOtherVelX);
+    this.vel[1] = Util.newVel(this.radius, otherAsteroid.radius, originalThisVelY, originalOtherVelY);
+    otherAsteroid.vel[0] = Util.newVel(otherAsteroid.radius, this.radius, originalOtherVelX, originalThisVelX);
+    otherAsteroid.vel[1] = Util.newVel(otherAsteroid.radius, this.radius, originalOtherVelY, originalThisVelY);
   };
 
   MovingObject.prototype.separateObjects = function(otherObject) {
@@ -304,10 +309,10 @@ function MovingObject(options) {
     overlapDist = r1 + r2 - distBetween;
     let dx = (x2 - x1) / overlapDist ;
     let dy = (y2 - y1) / overlapDist ;
-    this.pos[0] -= (overlapDist/2) * dx;
-    this.pos[1] -= (overlapDist/2) * dy;
-    otherObject.pos[0] += (overlapDist/2) * dx;
-    otherObject.pos[1] += (overlapDist/2) * dy;
+    this.pos[0] -= (overlapDist/16) * dx;
+    this.pos[1] -= (overlapDist/16) * dy;
+    otherObject.pos[0] += (overlapDist/16) * dx;
+    otherObject.pos[1] += (overlapDist/16) * dy;
   };
 
 
