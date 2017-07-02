@@ -104,7 +104,7 @@ module.exports = Util;
 let Asteroid = __webpack_require__(3);
 let Util = __webpack_require__(0);
 
-function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 15)  {
+function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 25)  {
   this.DIM_X = DIM_X;
   this.DIM_Y = DIM_Y;
   this.asteroids = [];
@@ -263,10 +263,10 @@ function MovingObject(options) {
   };
 
   MovingObject.prototype.move = function() {
-    this.pos[0] = (this.pos[0] + this.vel[0]) % 1000;
-    this.pos[0] < 0 ? this.pos[0] += 1000 : this.pos[0] ;
-    this.pos[1] = (this.pos[1] + this.vel[1]) % 1000;
-    this.pos[1] < 0 ? this.pos[1] += 1000 : this.pos[1];
+    this.pos[0] = (this.pos[0] + this.vel[0]) % 1045;
+    this.pos[0] < 0 ? this.pos[0] += 1045 : this.pos[0] ;
+    this.pos[1] = (this.pos[1] + this.vel[1]) % 1045;
+    this.pos[1] < 0 ? this.pos[1] += 1045 : this.pos[1];
   };
 
   MovingObject.prototype.bounce = function() {
