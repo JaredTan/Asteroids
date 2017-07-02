@@ -109,7 +109,7 @@ module.exports = GameView;
 let Asteroid = __webpack_require__(3);
 
 
-function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 50)  {
+function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 10)  {
   this.DIM_X = DIM_X;
   this.DIM_Y = DIM_Y;
   this.asteroids = [];
