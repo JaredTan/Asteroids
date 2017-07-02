@@ -6,9 +6,9 @@
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
+/******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-/******/ 		}
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -32,6 +32,9 @@
 /******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
 /******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
@@ -60,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -98,49 +101,10 @@ module.exports = Util;
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const GameView = __webpack_require__(2);
-const Game = __webpack_require__(3);
-
-
-document.addEventListener("DOMContentLoaded", function() {
-  let cancan = document.getElementById('canvas');
-  let ctx = cancan.getContext('2d');
-
-  let gameview = new GameView(new Game(), ctx);
-  gameview.start();
-});
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-function GameView(game, ctx) {
-  this.ctx = ctx;
-  this.game = game;
-}
-
-GameView.prototype.start = function() {
-  setInterval(() => this.movement(), Math.floor(1000/120));
-  setInterval(() => this.game.draw(this.ctx), Math.floor(1000/120));
-};
-
-GameView.prototype.movement = function() {
-  this.game.moveObjects();
-  this.game.checkCollisions();
-};
-
-module.exports = GameView;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-let Asteroid = __webpack_require__(4);
+let Asteroid = __webpack_require__(3);
 let Util = __webpack_require__(0);
 
-function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 50)  {
+function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 20)  {
   this.DIM_X = DIM_X;
   this.DIM_Y = DIM_Y;
   this.asteroids = [];
@@ -174,8 +138,24 @@ Game.prototype.checkCollisions = function() {
     for (let j = i + 1; j < this.asteroids.length; j++) {
       let ast1 = this.asteroids[i];
       let ast2 = this.asteroids[j];
-      if (ast1.isCollidedWith(ast2)) {
-        ast1.separateObjects(ast2);
+      ast1.objectCollisions.forEach(function(collision, i) {
+        if (!ast1.isCollidedWith(collision)) {
+          ast1.objectCollisions.splice(i, 1);
+        }
+      });
+      ast2.objectCollisions.forEach(function(collision, i) {
+        if (!ast1.isCollidedWith(collision)) {
+          ast1.objectCollisions.splice(i, 1);
+        }
+      });
+      if (ast1.isCollidedWith(ast2) && !ast1.objectCollisions.includes(ast2)
+          && ast1.pos[0] >= 0 && ast1.pos[0] <= 1000
+          && ast1.pos[1] >= 0 && ast1.pos[1] <= 1000
+          && ast2.pos[0] >= 0 && ast2.pos[0] <= 1000
+          && ast2.pos[1] >= 0 && ast2.pos[1] <= 1000) {
+        ast1.objectCollisions.push(ast2);
+        ast2.objectCollisions.push(ast1);
+        // ast1.separateObjects(ast2);
         ast1.newVel(ast2);
       }
     }
@@ -196,11 +176,33 @@ module.exports = Game;
 
 
 /***/ }),
-/* 4 */
+/* 2 */
+/***/ (function(module, exports) {
+
+function GameView(game, ctx) {
+  this.ctx = ctx;
+  this.game = game;
+}
+
+GameView.prototype.start = function() {
+  setInterval(() => this.movement(), Math.floor(1000/120));
+  setInterval(() => this.game.draw(this.ctx), Math.floor(1000/120));
+};
+
+GameView.prototype.movement = function() {
+  this.game.moveObjects();
+  this.game.checkCollisions();
+};
+
+module.exports = GameView;
+
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 let Util = __webpack_require__(0);
-let MovingObject = __webpack_require__(5);
+let MovingObject = __webpack_require__(4);
 
 function COLORS() {return '#'+Math.floor(Math.random()*16777215).toString(16);
 }
@@ -221,6 +223,8 @@ function Asteroid(options = {}) {
     (Math.random() - 0.5) * VELOCITY
   ];
   MovingObject.call(this, options);
+
+  this.objectCollisions = [];
 }
 
 // Asteroid.prototype.bounce = function() {
@@ -234,7 +238,7 @@ module.exports = Asteroid;
 
 
 /***/ }),
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 let Util = __webpack_require__(0);
@@ -263,10 +267,10 @@ function MovingObject(options) {
   };
 
   MovingObject.prototype.move = function() {
-    this.pos[0] = (this.pos[0] + this.vel[0]) % 1000;
-    this.pos[0] < 0 ? this.pos[0] += 1000 : this.pos[0] ;
-    this.pos[1] = (this.pos[1] + this.vel[1]) % 1000;
-    this.pos[1] < 0 ? this.pos[1] += 1000 : this.pos[1];
+    this.pos[0] = (this.pos[0] + this.vel[0]) % 1045;
+    this.pos[0] < -45 ? this.pos[0] += 1090 : this.pos[0] ;
+    this.pos[1] = (this.pos[1] + this.vel[1]) % 1045;
+    this.pos[1] < -45 ? this.pos[1] += 1090 : this.pos[1];
   };
 
   MovingObject.prototype.bounce = function() {
@@ -318,6 +322,23 @@ function MovingObject(options) {
 
 
 module.exports = MovingObject;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const GameView = __webpack_require__(2);
+const Game = __webpack_require__(1);
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  let cancan = document.getElementById('canvas');
+  let ctx = cancan.getContext('2d');
+
+  let gameview = new GameView(new Game(), ctx);
+  gameview.start();
+});
 
 
 /***/ })
