@@ -134,13 +134,12 @@ Game.prototype.moveObjects = function() {
 Game.prototype.checkCollisions = function() {
   for (let i = 0; i < this.asteroids.length; i++) {
     for (let j = 0; j < this.asteroids.length; j++) {
-      let ast1 = this.asteroids[i];
-      let ast2 = this.asteroids[j];
-      if (ast1.isCollidedWith(ast2) && j > i) {
-        ast1.vel[0] *= -1;
-        ast1.vel[1] *= -1;
-        ast2.vel[0] *= -1;
-        ast2.vel[1] *= -1;
+      const ast1 = this.asteroids[i];
+      const ast2 = this.asteroids[j];
+      if (ast1.isCollidedWith(ast2)) {
+
+        ast1.bounce;
+        ast2.bounce;
       }
     }
   }
@@ -187,10 +186,12 @@ function Asteroid(options = {}) {
   MovingObject.call(this, options);
 }
 
-// Asteroid.prototype.bounce = function() {
-//   this.vel[0] *= -1;
-//   this.vel[1] *= -1;
-// };
+Asteroid.prototype.bounce = function() {
+  // console.log('Bounce'!);
+  this.vel[0] *= -1;
+  console.log(this);
+  this.vel[1] *= -1;
+};
 
 Util.inherits(Asteroid, MovingObject);
 
@@ -247,10 +248,6 @@ function MovingObject(options) {
     this.pos[1] < 0 ? this.pos[1] += 1000 : this.pos[1];
   };
 
-  MovingObject.prototype.bounce = function() {
-    this.vel[0] *= -1;
-    this.vel[1] *= -1;
-  };
 
   MovingObject.prototype.isCollidedWith = function(otherObject) {
     let x1 = this.pos[0];
