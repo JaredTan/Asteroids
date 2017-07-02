@@ -104,7 +104,7 @@ module.exports = Util;
 let Asteroid = __webpack_require__(3);
 let Util = __webpack_require__(0);
 
-function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 25)  {
+function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 50)  {
   this.DIM_X = DIM_X;
   this.DIM_Y = DIM_Y;
   this.asteroids = [];
@@ -148,7 +148,11 @@ Game.prototype.checkCollisions = function() {
           ast1.objectCollisions.splice(i, 1);
         }
       });
-      if (ast1.isCollidedWith(ast2) && !ast1.objectCollisions.includes(ast2)) {
+      if (ast1.isCollidedWith(ast2) && !ast1.objectCollisions.includes(ast2)
+          && ast1.pos[0] >= 0 && ast1.pos[0] <= 1000
+          && ast1.pos[1] >= 0 && ast1.pos[1] <= 1000
+          && ast2.pos[0] >= 0 && ast2.pos[0] <= 1000
+          && ast2.pos[1] >= 0 && ast2.pos[1] <= 1000) {
         ast1.objectCollisions.push(ast2);
         ast2.objectCollisions.push(ast1);
         // ast1.separateObjects(ast2);
