@@ -104,7 +104,7 @@ module.exports = Util;
 let Asteroid = __webpack_require__(3);
 let Util = __webpack_require__(0);
 
-function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 50)  {
+function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 20)  {
   this.DIM_X = DIM_X;
   this.DIM_Y = DIM_Y;
   this.asteroids = [];
