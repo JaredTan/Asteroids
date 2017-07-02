@@ -6,9 +6,9 @@
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
+/******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-/******/ 		}
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -32,6 +32,9 @@
 /******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
 /******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
@@ -60,66 +63,34 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
-const GameView = __webpack_require__(1);
-const Game = __webpack_require__(2);
+let Asteroid = __webpack_require__(2);
 
 
-document.addEventListener("DOMContentLoaded", function() {
-  let cancan = document.getElementById('canvas');
-  let ctx = cancan.getContext('2d');
-
-  let gameview = new GameView(new Game(), ctx);
-  gameview.start();
-});
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports) {
-
-function GameView(game, ctx) {
-  this.ctx = ctx;
-  this.game = game;
-}
-
-GameView.prototype.start = function() {
-  setInterval(() => this.movement(), Math.floor(1000/60));
-  setInterval(() => this.game.draw(this.ctx), Math.floor(1000/60));
-};
-
-GameView.prototype.movement = function() {
-  this.game.moveObjects();
-  this.game.checkCollisions();
-};
-
-module.exports = GameView;
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-let Asteroid = __webpack_require__(3);
-
-
-function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 10)  {
+function Game(DIM_X = 1000, DIM_Y = 1000, NUM_ASTEROIDS = 20)  {
   this.DIM_X = DIM_X;
   this.DIM_Y = DIM_Y;
   this.asteroids = [];
-  for (var i = 0; i <= NUM_ASTEROIDS; i++) {
-    this.addAsteroids();
+  while(this.asteroids.length < NUM_ASTEROIDS){
+    let asteroid = this.addAsteroids();
+    for (var i = 0; i < this.asteroids.length-1; i++) {
+      if(asteroid.isCollidedWith(this.asteroids[i])) {
+        this.asteroids.pop();
+      }
+    }
   }
 }
 
 Game.prototype.addAsteroids = function() {
-  this.asteroids.push(new Asteroid());
+  let asteroid = new Asteroid();
+  this.asteroids.push(asteroid);
+  return asteroid;
 };
 
 Game.prototype.draw = function(ctx) {
@@ -160,11 +131,33 @@ module.exports = Game;
 
 
 /***/ }),
-/* 3 */
+/* 1 */
+/***/ (function(module, exports) {
+
+function GameView(game, ctx) {
+  this.ctx = ctx;
+  this.game = game;
+}
+
+GameView.prototype.start = function() {
+  setInterval(() => this.movement(), Math.floor(1000/60));
+  setInterval(() => this.game.draw(this.ctx), Math.floor(1000/60));
+};
+
+GameView.prototype.movement = function() {
+  this.game.moveObjects();
+  this.game.checkCollisions();
+};
+
+module.exports = GameView;
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 let Util = __webpack_require__(4);
-let MovingObject = __webpack_require__(5);
+let MovingObject = __webpack_require__(3);
 
 function COLORS() {return '#'+Math.floor(Math.random()*16777215).toString(16);
 }
@@ -198,23 +191,7 @@ module.exports = Asteroid;
 
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-
-const Util = {
-  inherits (child, parent) {
-    child.prototype = Object.create(parent.prototype);
-    child.prototype.constructor = child;
-  }
-};
-
-
-module.exports = Util;
-
-
-/***/ }),
-/* 5 */
+/* 3 */
 /***/ (function(module, exports) {
 
 function MovingObject(options) {
@@ -267,6 +244,39 @@ function MovingObject(options) {
 
 
 module.exports = MovingObject;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports) {
+
+
+const Util = {
+  inherits (child, parent) {
+    child.prototype = Object.create(parent.prototype);
+    child.prototype.constructor = child;
+  }
+};
+
+
+module.exports = Util;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+const GameView = __webpack_require__(1);
+const Game = __webpack_require__(0);
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  let cancan = document.getElementById('canvas');
+  let ctx = cancan.getContext('2d');
+
+  let gameview = new GameView(new Game(), ctx);
+  gameview.start();
+});
 
 
 /***/ })
